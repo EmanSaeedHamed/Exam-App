@@ -4,7 +4,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <OffCanvas/>
-      <main className="ml-96 bg-red-400">
+      <main className="ml-[370px] bg-red-400">
       {children}
       </main>
     </>
