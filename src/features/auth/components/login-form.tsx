@@ -15,9 +15,7 @@ import { CircleX, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import {signIn} from "next-auth/react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 export default function LoginForm() {
-  const router = useRouter();
   const [showPass, setShowPass] = useState(false);
   const form = useForm<TLoginSchema>({
     defaultValues: {
@@ -35,14 +33,13 @@ export default function LoginForm() {
     const res = await signIn("credentials", {
       username: values.username,
       password: values.password,
-      redirect: false,
+      redirect: true,
       callbackUrl: "/"
     })
     console.log(res);
     if(res?.ok){
       toast.success("you logges successfully");
-      router.push("/");
-      router.refresh();
+      window.location.href = "/";
     }else{
       toast.error(res?.error);
     }
