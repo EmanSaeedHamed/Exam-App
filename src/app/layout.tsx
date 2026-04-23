@@ -2,8 +2,6 @@ import { Geist_Mono, Geist } from "next/font/google";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/shared/lib/utils";
-import { Toaster } from "@/shared/components/ui/sonner";
-import { RegisterContextProvider } from "@/shared/context/register-context";
 import Providers from "@/shared/context/providers";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });

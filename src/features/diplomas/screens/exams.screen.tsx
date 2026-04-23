@@ -1,5 +1,6 @@
+'use client';
 import { BreadCrumb } from "../components/breed-crumb";
-import { getDiplomaById } from "@/shared/lib/api/diplomas/diplomas.api";
+import { getAllExams } from "@/shared/lib/api/diplomas/diplomas.api";
 import {
   BookOpenCheck,
   ChevronDown,
@@ -7,23 +8,54 @@ import {
 } from "lucide-react";
 import ExamItem from "../components/exam-item";
 import Link from "next/link";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import ExamsSkeleton from "@/shared/skeletons/exams.skeleton";
+import { useParams } from "next/navigation";
+export default function ExamsScreen() {
+  const params = useParams();
+  const id = params.id as string;
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['diplomaExams', id],
+    queryFn: ({ pageParam }) => getAllExams({ pageParam,id }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const currentPage = lastPage?.payload?.metadata?.page;
+      const totalPages = lastPage?.payload?.metadata?.totalPages;
 
-export type DiplomaByIdPageProps = {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-};
-
-export default async function ExamsScreen(props: DiplomaByIdPageProps) {
-  const { id } = await props.params;
-  const diplomasPayload = await getDiplomaById(id);
-  console.log(diplomasPayload);
-  console.log(id);
+      return currentPage < totalPages
+        ? currentPage + 1
+        : undefined;
+    },
+  });
+  const loadMoreRef = useRef(null);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasNextPage) {
+        fetchNextPage();
+      }
+    });
+  
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+  
+    return () => observer.disconnect();
+  }, [hasNextPage, fetchNextPage]);
+  
+    // Flatten all pages into a single list of diplomas
+    const exams = data?.pages.flatMap((page) => page?.payload?.data ?? []);
 
   return (
     <>
       {/* breedcrumb */}
       <div className="bg-white">
-        <BreadCrumb />
+        <BreadCrumb diplomaTitle={exams?.[0]?.diploma?.title} />
       </div>
       <div className="bg-gray-50 p-6">
         {/* heading */}
@@ -34,23 +66,37 @@ export default async function ExamsScreen(props: DiplomaByIdPageProps) {
             </Link>
         <div className="bg-blue-600 p-4 flex items-center gap-4 text-white flex-1">
           <BookOpenCheck className="size-10" />
-          <span className="font-inter text-[32px] font-semibold">{diplomasPayload?.payload?.diploma?.title}</span>
+          <span className="font-inter text-[32px] font-semibold">{exams?.[0]?.diploma?.title ?? "Diploma"}</span>
         </div>
         </div>
         {/* content */}
         <div className="bg-white p-6">
-          {/* diplomas */}
+          {
+             !exams?.length ?
+                        <ExamsSkeleton hasNextPage={hasNextPage} /> :
+                        <>
+                                  {/* diplomas */}
           <div className="my-6 grid grid-cols-1 gap-2.5 mt-0 bg-white">
-            {diplomasPayload?.payload?.diploma?.exams.map((exam) => (
+            {exams?.map((exam) => (
               <ExamItem payload={exam} diplomaId={id} key={exam.id} />
             ))}
           </div>
-
+            
           {/* footer */}
-          <div className="text-gray-600 flex flex-col items-center py-2.5">
-            <span className="font-mono">Scroll to view more</span>
-            <ChevronDown className="size-4.5" />
-          </div>
+          <div ref={loadMoreRef} className="text-gray-600 flex flex-col items-center py-2.5">
+  {hasNextPage ? (
+    <>
+      <span className="font-mono">Scroll to view more</span>
+      <ChevronDown className="size-4.5" />
+    </>
+  ) : (
+    <span className="font-mono text-gray-400">
+      End of list
+    </span>
+  )}
+</div>
+       </>}
+
         </div>
       </div>
     </>

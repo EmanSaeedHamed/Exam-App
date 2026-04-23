@@ -7,7 +7,7 @@ import { getNextAuthToken } from "../../utils/get-token.util";
 export async function getDiplomas({ pageParam = 1 }): Promise<IDiplomasResponse> {
   const token = await getNextAuthToken();
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/diplomas?page=${pageParam}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/diplomas?page=${pageParam}&limit=6`,
     {
       method: "GET",
       headers: {
@@ -22,11 +22,29 @@ export async function getDiplomas({ pageParam = 1 }): Promise<IDiplomasResponse>
 
 //   get diploma by id
 export async function getDiplomaById(
-  id: string,
+  id: string
 ): Promise<IDiplomaExamsResponse> {
   const token = await getNextAuthToken();
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/diplomas/${id}`,
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token?.token}`,
+      },
+    },
+  );
+  const payload = (await response.json()) as IDiplomaExamsResponse;
+  return payload;
+}
+
+
+// Get all exams
+export async function getAllExams({ pageParam = 1,id }: { pageParam?: number,id:string }): Promise<IDiplomaExamsResponse> {
+  const token = await getNextAuthToken();
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/exams?page=${pageParam}&limit=2&diplomaId=${id}`,
     {
       method: "GET",
       headers: {

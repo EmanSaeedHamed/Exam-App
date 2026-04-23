@@ -1,6 +1,6 @@
 "use client";
 
-import { IDiplomaExam } from "@/shared/lib/types/diploma-exams";
+import { IExam } from "@/shared/lib/types/diploma-exams";
 import { CircleQuestionMark, MoveRight, Timer } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,7 +9,7 @@ export default function ExamItem({
   payload,
   diplomaId,
 }: {
-  payload: IDiplomaExam;
+  payload: IExam;
   diplomaId: string;
 }) {
   const { id, image, description, title, duration } = payload;
