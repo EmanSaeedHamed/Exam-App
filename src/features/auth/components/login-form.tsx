@@ -15,7 +15,9 @@ import { CircleX, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import {signIn} from "next-auth/react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 export default function LoginForm() {
+  const router = useRouter();
   const [showPass, setShowPass] = useState(false);
   const form = useForm<TLoginSchema>({
     defaultValues: {
@@ -39,7 +41,8 @@ export default function LoginForm() {
     console.log(res);
     if(res?.ok){
       toast.success("you logges successfully");
-      window.location.href = "/";
+      router.push("/");
+      router.refresh();
     }else{
       toast.error(res?.error);
     }
@@ -49,7 +52,7 @@ export default function LoginForm() {
   return (
     <>
       <div className="py-60">
-        <div className="max-w-[452px] mx-auto">
+        <div className="max-w-113 mx-auto">
           <h2 className="font-inter font-bold text-3xl text-gray-800 mb-10">
             Login
           </h2>
@@ -99,12 +102,12 @@ export default function LoginForm() {
                       {showPass ? (
                         <Eye
                           onClick={() => setShowPass(!showPass)}
-                          className="absolute right-2.5 size-[18px] text-gray-400 cursor-pointer"
+                          className="absolute right-2.5 size-4.5 text-gray-400 cursor-pointer"
                         />
                       ) : (
                         <EyeOff
                           onClick={() => setShowPass(!showPass)}
-                          className="absolute right-2.5 size-[18px] text-gray-400 cursor-pointer"
+                          className="absolute right-2.5 size-4.5 text-gray-400 cursor-pointer"
                         />
                       )}
                     </div>
@@ -131,7 +134,7 @@ export default function LoginForm() {
                 <p className="text-sm font-mono text-red-600">
                   Something went wrong
                 </p>
-                <CircleX className="absolute text-red-600 size-[18px] bg-white left-1/2 -translate-1/2 top-0" />
+                <CircleX className="absolute text-red-600 size-4.5 bg-white left-1/2 -translate-1/2 top-0" />
               </div>
             )}
 
